@@ -13,6 +13,7 @@
     <packaging>hpi</packaging>
     <name>Request Rename Or Delete Plugin</name>
     <version>1.0-SNAPSHOT</version>
+    <url>http://wiki.jenkins-ci.org/display/JENKINS/Request+Rename+Or+Delete+Plugin</url>
     
     <developers>
         <developer>
@@ -22,5 +23,5 @@
             <timezone>+1</timezone>
         </developer>
     </developers>
-  
+    
 </project>
