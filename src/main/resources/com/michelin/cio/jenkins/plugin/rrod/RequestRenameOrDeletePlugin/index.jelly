@@ -1,0 +1,89 @@
+<!--
+  - The MIT License
+  -
+  - Copyright (c) 2011, Manufacture Francaise des Pneumatiques Michelin, Daniel Petisme
+  -
+  - Permission is hereby granted, free of charge, to any person obtaining a copy
+  - of this software and associated documentation files (the "Software"), to deal
+  - in the Software without restriction, including without limitation the rights
+  - to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  - copies of the Software, and to permit persons to whom the Software is
+  - furnished to do so, subject to the following conditions:
+  -
+  - The above copyright notice and this permission notice shall be included in
+  - all copies or substantial portions of the Software.
+  -
+  - THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  - IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  - FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  - AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  - LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  - OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  - THE SOFTWARE.
+  -->
+
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt" xmlns:p="/lib/hudson/project">
+    <l:layout secured="true">
+        <st:include it="${app}" page="sidepanel.jelly"/>
+        <l:main-panel>
+            <h1>${%RROD.plugin.title}</h1>
+            <style type="text/css">
+                div.row {
+                clear: both;
+                padding-top: 10px;
+                }
+                div.scroll {
+                height: 500px;
+                overflow: auto;
+                }
+                #button-container{
+                width: 600px;
+                margin-bottom : 10px;
+                }
+                input.button{
+                height: 25px;
+                }
+            </style>
+
+            <j:choose>
+                <j:when test="${it.requests.isEmpty()}">
+                    <strong>${%RROD.plugin.requests.empty}</strong>
+                </j:when>
+
+                <j:otherwise>
+                    <form method="POST" name="pendingRequests" action="manageRequests">
+                        <div id="button-container">
+                            <input type="submit" class="button" style="margin-left: 50px; margin-right:50px"
+                                   name="discard" value="${%RROD.plugin.button.discard}"/>
+                            <input type="submit" class="button" name="apply" value="${%RROD.plugin.button.apply}"/>
+                        </div>
+                        <div class="scroll">
+                            <j:forEach begin="0" end="${it.requests.size() - 1}" step="1" var="index">
+                                <div class="row">
+                                    <j:set var="request" value="${it.requests.get(index)}"/>
+                                    <input type="checkbox" name="selected" value="${index}"/>
+                                    ${request.message}
+                                    <st:nbsp/>&#8212;<st:nbsp/>
+                                    <j:choose>
+                                        <j:when test="${not empty request.username}">
+                                            <a href="${rootURL}/user/${request.username}">
+                                                <b>${request.username}</b>
+                                            </a>
+                                        </j:when>
+                                        <j:otherwise>
+                                           ${%RROD.plugin.text.anonymous} 
+                                        </j:otherwise>
+                                    </j:choose>
+                                    <st:nbsp/>&#8212;<st:nbsp/>
+                                    <a href="${url}/job/${request.project}">${request.project}</a>
+                                </div>
+                            </j:forEach>
+                        </div>
+                    </form>
+                </j:otherwise>
+            </j:choose>
+
+        </l:main-panel>
+    </l:layout>
+</j:jelly>
