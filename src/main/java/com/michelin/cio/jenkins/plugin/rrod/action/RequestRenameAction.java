@@ -68,14 +68,14 @@ public class RequestRenameAction implements Action {
     }
 
     public String getDisplayName() {
-        if(hasConfigurePermission() && !hasCreateAndDeletePermission()) {
+        if (isIconDisplayed()) {
             return Messages.RequestRenameAction_DisplayName().toString();
         }
         return null;
     }
 
     public String getIconFileName() {
-        if(hasConfigurePermission() && !hasCreateAndDeletePermission()) {
+        if (isIconDisplayed()) {
             return "/images/24x24/setting.png";
         }
         return null;
@@ -88,15 +88,41 @@ public class RequestRenameAction implements Action {
     public String getUrlName() {
         return "request-rename";
     }
-    
+
+    /*
+     * Permission computing
+     *  1: The user has the permission
+     *  0: The user has not the permission
+     *  *: it doesn't matter
+     * 
+     *           
+     * Create    | 1 | 0 | 0 | 
+     * Delete    | 0 | 1 | 0 |
+     * Configure | * | * | 1 |
+     * 
+     * So display the icon whenthe user can:
+     * Create AND !Delete OR
+     * Delet AND !Create OR
+     * Configure AND !Create AND !Delete
+     */
+    private boolean isIconDisplayed() {
+        return (hasConfigurePermission() && !(hasCreatePermission() && hasDeletePermission()))
+                || (hasCreatePermission() && !hasDeletePermission())
+                || (!hasCreatePermission() && hasDeletePermission());
+    }
+
     private boolean hasConfigurePermission() {
         return Hudson.getInstance().hasPermission(Item.CONFIGURE);
     }
 
-    private boolean hasCreateAndDeletePermission() {
-        return Hudson.getInstance().hasPermission(Item.DELETE) && Hudson.getInstance().hasPermission(Item.CREATE);
+    private boolean hasCreatePermission() {
+        return Hudson.getInstance().hasPermission(Item.CREATE);
     }
 
+    private boolean hasDeletePermission() {
+        return Hudson.getInstance().hasPermission(Item.DELETE);
+    }
+    
     private static final Logger LOGGER = Logger.getLogger(RequestRenameAction.class.getName());
 
 }
