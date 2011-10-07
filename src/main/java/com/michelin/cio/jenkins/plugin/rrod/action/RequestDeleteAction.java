@@ -24,6 +24,8 @@
 
 package com.michelin.cio.jenkins.plugin.rrod.action;
 
+import hudson.Functions;
+import java.util.logging.Level;
 import hudson.model.Item;
 import com.michelin.cio.jenkins.plugin.rrod.model.DeleteRequest;
 import com.michelin.cio.jenkins.plugin.rrod.RequestRenameOrDeletePlugin;
@@ -68,14 +70,14 @@ public class RequestDeleteAction implements Action {
     }
 
     public String getDisplayName() {
-        if(hasConfigurePermission() && !hasDeletePermission()) {
+        if (isIconDisplayed()) {
             return Messages.RequestDeleteAction_DisplayName().toString();
         }
         return null;
     }
 
     public String getIconFileName() {
-        if(hasConfigurePermission() && !hasDeletePermission()) {
+        if (isIconDisplayed()) {
             return "/images/24x24/edit-delete.png";
         }
         return null;
@@ -89,12 +91,28 @@ public class RequestDeleteAction implements Action {
         return "request-delete";
     }
 
-    private boolean hasConfigurePermission() {
-        return Hudson.getInstance().hasPermission(Item.CONFIGURE);
-    }
+    /**
+     * Displays the icon when the user can configure and !delete.
+     */
+    private boolean isIconDisplayed() {
+        boolean isDisplayed = false;
+        try {
+            isDisplayed = hasConfigurePermission() && !hasDeletePermission();
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Impossible know if the icon have to be displayed", e);
+        } catch (ServletException e) {
+            LOGGER.log(Level.WARNING, "Impossible know if the icon have to be displayed", e);
+        }
 
-    private boolean hasDeletePermission() {
-        return Hudson.getInstance().hasPermission(Item.DELETE);
+        return isDisplayed;
+     }
+
+    private boolean hasConfigurePermission() throws IOException, ServletException {
+        return Functions.hasPermission(project, Item.CONFIGURE);
+     }
+ 
+    private boolean hasDeletePermission() throws IOException, ServletException {
+        return Functions.hasPermission(project, Item.DELETE);
     }
 
     private static final Logger LOGGER = Logger.getLogger(RequestDeleteAction.class.getName());

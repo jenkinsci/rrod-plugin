@@ -24,6 +24,8 @@
 
 package com.michelin.cio.jenkins.plugin.rrod.action;
 
+import hudson.Functions;
+import java.util.logging.Level;
 import hudson.model.Item;
 import com.michelin.cio.jenkins.plugin.rrod.RequestRenameOrDeletePlugin;
 import com.michelin.cio.jenkins.plugin.rrod.model.RenameRequest;
@@ -91,36 +93,44 @@ public class RequestRenameAction implements Action {
 
     /*
      * Permission computing
-     *  1: The user has the permission
-     *  0: The user has not the permission
-     *  *: it doesn't matter
+     * 1: The user has the permission
+     * 0: The user has not the permission
+     * *: it doesn't matter
      * 
-     *           
      * Create    | 1 | 0 | 0 | 
      * Delete    | 0 | 1 | 0 |
      * Configure | * | * | 1 |
      * 
-     * So display the icon whenthe user can:
+     * So, the action has to be enabled when:
      * Create AND !Delete OR
-     * Delet AND !Create OR
+     * Delete AND !Create OR
      * Configure AND !Create AND !Delete
      */
     private boolean isIconDisplayed() {
-        return (hasConfigurePermission() && !(hasCreatePermission() && hasDeletePermission()))
-                || (hasCreatePermission() && !hasDeletePermission())
-                || (!hasCreatePermission() && hasDeletePermission());
+        boolean isDisplayed = false;
+        try {
+            isDisplayed = (hasConfigurePermission() && !(hasCreatePermission() && hasDeletePermission()))
+                                || (hasCreatePermission() && !hasDeletePermission())
+                                || (!hasCreatePermission() && hasDeletePermission());
+        } catch (IOException e) {
+            LOGGER.log(Level.WARNING, "Impossible know if the icon have to be displayed", e);
+        } catch (ServletException e) {
+            LOGGER.log(Level.WARNING, "Impossible know if the icon have to be displayed", e);
+        }
+        
+        return isDisplayed;
     }
 
-    private boolean hasConfigurePermission() {
-        return Hudson.getInstance().hasPermission(Item.CONFIGURE);
+    private boolean hasConfigurePermission() throws IOException, ServletException {
+        return Functions.hasPermission(project, Item.CONFIGURE);
     }
 
-    private boolean hasCreatePermission() {
-        return Hudson.getInstance().hasPermission(Item.CREATE);
+    private boolean hasCreatePermission() throws IOException, ServletException {
+        return Functions.hasPermission(project, Item.CREATE);
     }
 
-    private boolean hasDeletePermission() {
-        return Hudson.getInstance().hasPermission(Item.DELETE);
+    private boolean hasDeletePermission() throws IOException, ServletException {
+        return Functions.hasPermission(project, Item.DELETE);
     }
     
     private static final Logger LOGGER = Logger.getLogger(RequestRenameAction.class.getName());
