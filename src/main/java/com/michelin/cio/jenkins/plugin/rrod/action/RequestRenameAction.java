@@ -1,7 +1,8 @@
 /*
  * The MIT License
  *
- * Copyright (c) 2011, Manufacture Francaise des Pneumatiques Michelin, Daniel Petisme
+ * Copyright (c) 2011, Manufacture Francaise des Pneumatiques Michelin, Daniel Petisme,
+ * Romain Seguy
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -57,14 +58,15 @@ public class RequestRenameAction implements Action {
     }
 
     public HttpResponse doCreateRenameRequest(StaplerRequest request, StaplerResponse response) throws IOException, ServletException {
-        Hudson.getInstance().checkPermission(Item.CONFIGURE);
-        LOGGER.log(FINE, "Renaming request");
+        if (isIconDisplayed()) {
+            LOGGER.log(FINE, "Renaming request");
 
-        final String newName = request.getParameter("new-name");
-        final String username = request.getParameter("username");
+            final String newName = request.getParameter("new-name");
+            final String username = request.getParameter("username");
 
-        RequestRenameOrDeletePlugin plugin = Hudson.getInstance().getPlugin(RequestRenameOrDeletePlugin.class);
-        plugin.addRequest(new RenameRequest(username, project.getName(), newName));
+            RequestRenameOrDeletePlugin plugin = Hudson.getInstance().getPlugin(RequestRenameOrDeletePlugin.class);
+            plugin.addRequest(new RenameRequest(username, project.getName(), newName));
+        }
 
         return new HttpRedirect(request.getContextPath() + '/' + project.getUrl());
     }
@@ -112,10 +114,8 @@ public class RequestRenameAction implements Action {
             isDisplayed = (hasConfigurePermission() && !(hasCreatePermission() && hasDeletePermission()))
                                 || (hasCreatePermission() && !hasDeletePermission())
                                 || (!hasCreatePermission() && hasDeletePermission());
-        } catch (IOException e) {
-            LOGGER.log(Level.WARNING, "Impossible know if the icon have to be displayed", e);
-        } catch (ServletException e) {
-            LOGGER.log(Level.WARNING, "Impossible know if the icon have to be displayed", e);
+        } catch (Exception e) {
+            LOGGER.log(Level.WARNING, "Impossible to know if the icon has to be displayed", e);
         }
         
         return isDisplayed;
