@@ -12,13 +12,13 @@
     <artifactId>rrod</artifactId>
     <packaging>hpi</packaging>
     <name>Request Rename Or Delete Plugin</name>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.2.0</version>
     <url>http://wiki.jenkins-ci.org/display/JENKINS/Request+Rename+Or+Delete+Plugin</url>
    
     <scm>
-       <connection>scm:svn:https://svn.jenkins-ci.org/trunk/hudson/plugins/rrod</connection>
-       <developerConnection>scm:svn:https://svn.jenkins-ci.org/trunk/hudson/plugins/rrod</developerConnection>
-       <url>https://svn.jenkins-ci.org/trunk/hudson/plugins/rrod</url>
+       <connection>scm:svn:https://svn.jenkins-ci.org/tags/rrod-1.2.0</connection>
+       <developerConnection>scm:svn:https://svn.jenkins-ci.org/tags/rrod-1.2.0</developerConnection>
+       <url>https://svn.jenkins-ci.org/tags/rrod-1.2.0</url>
     </scm>
   
     <developers>
