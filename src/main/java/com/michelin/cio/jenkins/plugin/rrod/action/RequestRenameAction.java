@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright (c) 2011, Manufacture Francaise des Pneumatiques Michelin, Daniel Petisme,
+ * Copyright (c) 2011-2012, Manufacture Francaise des Pneumatiques Michelin, Daniel Petisme,
  * Romain Seguy
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -66,6 +66,7 @@ public class RequestRenameAction implements Action {
 
             RequestRenameOrDeletePlugin plugin = Hudson.getInstance().getPlugin(RequestRenameOrDeletePlugin.class);
             plugin.addRequest(new RenameRequest(username, project.getName(), newName));
+            LOGGER.log(Level.INFO, "The request to rename the jobs {0} in {1} has been sent to the administrator", new Object[]{project.getName(), newName});
         }
 
         return new HttpRedirect(request.getContextPath() + '/' + project.getUrl());

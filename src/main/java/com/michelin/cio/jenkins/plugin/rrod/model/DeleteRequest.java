@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright (c) 2011, Manufacture Francaise des Pneumatiques Michelin, Daniel Petisme
+ * Copyright (c) 2011-2012, Manufacture Francaise des Pneumatiques Michelin, Daniel Petisme
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package com.michelin.cio.jenkins.plugin.rrod.model;
 
 import hudson.model.Hudson;
@@ -48,27 +47,27 @@ public class DeleteRequest extends Request {
         return Messages.DeleteRequest_message(project).toString();
     }
 
-    @Override
-    public boolean process() {
+    public boolean execute(Job job) {
         boolean success = false;
 
-        if (Hudson.getInstance().hasPermission(Item.DELETE)) {
-            Job job = (Job) Hudson.getInstance().getItem(project);
+        if (Hudson.getInstance().hasPermission(Item.DELETE)) {            
             try {
                 job.delete();
                 success = true;
+                LOGGER.log(Level.INFO, "The jobs {0} has been properly deleted", job.getName());
             } catch (IOException e) {
+                errorMessage = e.getMessage();
                 LOGGER.log(Level.SEVERE, "Unable to delete the job " + job.getName(), e);
             } catch (InterruptedException e) {
+                errorMessage = e.getMessage();
                 LOGGER.log(Level.SEVERE, "Unable to delete the job " + job.getName(), e);
             }
         } else {
-            LOGGER.log(Level.FINE, "The current user does not have the DELETE permission");
+            errorMessage = "The current user " + username + " has no permission to rename the job";            
+            LOGGER.log(Level.FINE, "The current user {0} has no permission to DELETE the job", new Object[]{username});LOGGER.log(Level.FINE, "The current user does not have the DELETE permission");
         }
 
         return success;
     }
-
     private static final Logger LOGGER = Logger.getLogger(DeleteRequest.class.getName());
-
 }

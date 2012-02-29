@@ -1,7 +1,7 @@
 <!--
   - The MIT License
   -
-  - Copyright (c) 2011, Manufacture Francaise des Pneumatiques Michelin, Daniel Petisme
+  - Copyright (c) 2011-2012, Manufacture Francaise des Pneumatiques Michelin, Daniel Petisme
   -
   - Permission is hereby granted, free of charge, to any person obtaining a copy
   - of this software and associated documentation files (the "Software"), to deal
@@ -24,28 +24,77 @@
 
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
          xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt" xmlns:p="/lib/hudson/project">
-    <l:layout secured="true">
-        <st:include it="${app}" page="sidepanel.jelly"/>
-        <l:main-panel>
-            <h1>${%RROD.plugin.title}</h1>
-            <style type="text/css">
-                div.row {
-                clear: both;
-                padding-top: 10px;
+    <style>
+                #tab {
+                margin: 10px 0;
+                text-align: center;
+                border-collapse: collapse;
+                border-bottom: 1px solid #999;                
                 }
-                div.scroll {
-                height: 500px;
-                overflow: auto;
+
+                #tab th {
+                font-size: 13px;
+                font-weight: bold;
+                padding: 8px;
+                border: 1px solid #999;
+                vertical-align:text-top;
                 }
+
+                #tab td {
+                padding: 8px;
+                border-left: 1px solid #999;
+                border-right: 1px solid #999;
+                }
+
+                #tab tbody tr:hover { background: #CCD9E3; border:1px solid #999}
+               
+                .name_column{
+                padding: 3px;
+                width: 20%;
+                }                                
+                
                 #button-container{
-                width: 600px;
+                width: 800px;
                 margin-bottom : 10px;
                 }
+                
                 input.button{
                 height: 25px;
                 }
-            </style>
-
+                #errors {
+                color: #CC0000;
+                font-weight: bold;
+                min-height: 16px;                
+                }                                               
+    </style>
+    <script types="text/javascript">
+    
+    function toogleAll(){
+       $$('.checkbox').each(
+          function(e){
+             e.checked = $('checkbox_reference').checked
+          }
+       );
+    }
+        </script>
+    <l:layout secured="true">
+        <st:include it="${app}" page="sidepanel.jelly"/>
+        <l:main-panel>            
+            <h1>${%RROD.plugin.title}</h1>
+            <j:choose>
+                <j:when test="${not it.errors.isEmpty()}">
+                    <div id="errors">
+                        <div class="error">
+                            <strong>${%RROD.plugin.errors}</strong>
+                        </div>
+                        <ul>
+                            <j:forEach var="error" items ="${it.errors}">                    
+                                <li>${error}</li>
+                            </j:forEach>
+                        </ul>
+                    </div>
+                </j:when>
+            </j:choose>
             <j:choose>
                 <j:when test="${it.requests.isEmpty()}">
                     <strong>${%RROD.plugin.requests.empty}</strong>
@@ -54,32 +103,58 @@
                 <j:otherwise>
                     <form method="POST" name="pendingRequests" action="manageRequests">
                         <div id="button-container">
-                            <input type="submit" class="button" style="margin-left: 50px; margin-right:50px"
+                            <input type="submit" class="button" style="margin-left: 100px; margin-right:100px"
                                    name="discard" value="${%RROD.plugin.button.discard}"/>
                             <input type="submit" class="button" name="apply" value="${%RROD.plugin.button.apply}"/>
                         </div>
-                        <div class="scroll">
-                            <j:forEach begin="0" end="${it.requests.size() - 1}" step="1" var="index">
-                                <div class="row">
+                        <table id="tab" cellpadding="3" cellspacing="3">
+                            <thead class="fixedHeader">
+                                <tr>
+                                    <th class="first_column">${%RROD.plugin.requests.header.select}<br />                                    
+                                    <input type="checkbox" onclick="toogleAll()" id="checkbox_reference"/>
+                                    </th>
+                                    <th class="name_column">${%RROD.plugin.requests.header.request}</th>                                       
+                                    <th class="name_column">${%RROD.plugin.requests.header.requester}</th>
+                                    <th class="name_column">${%RROD.plugin.requests.header.creationDate}</th>
+                                    <th class="name_column">${%RROD.plugin.requests.header.jobMainPage}</th>
+                                    <th class="name_column">${%RROD.plugin.requests.header.jobConfigFile}</th>
+                                </tr>
+                            </thead>
+                            <tbody>                                
+                                <j:forEach begin="0" end="${it.requests.size() - 1}" step="1" var="index">
                                     <j:set var="request" value="${it.requests.get(index)}"/>
-                                    <input type="checkbox" name="selected" value="${index}"/>
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" name="selected" value="${index}" class="checkbox"/>
+                                        </td>
+                                        <td>
                                     ${request.message}
-                                    <st:nbsp/>&#8212;<st:nbsp/>
-                                    <j:choose>
-                                        <j:when test="${not empty request.username}">
-                                            <a href="${rootURL}/user/${request.username}">
-                                                <b>${request.username}</b>
-                                            </a>
-                                        </j:when>
-                                        <j:otherwise>
+                                        </td>
+                                        <td>
+                                            <j:choose>
+                                                <j:when test="${not empty request.username}">
+                                                    <a href="${rootURL}/user/${request.username}">
+                                                        <b>${request.username}</b>
+                                                    </a>
+                                                </j:when>
+                                                <j:otherwise>
                                            ${%RROD.plugin.text.anonymous} 
-                                        </j:otherwise>
-                                    </j:choose>
-                                    <st:nbsp/>&#8212;<st:nbsp/>
-                                    <a href="${url}/job/${request.project}">${request.project}</a>
-                                </div>
-                            </j:forEach>
-                        </div>
+                                                </j:otherwise>
+                                            </j:choose>
+                                        </td>
+                                        <td>
+                                                 ${request.creationDate}   
+                                        </td>
+                                        <td>                                                   
+                                            <a href="${rootURL}/job/${request.project}">${request.project}</a>
+                                        </td>
+                                        <td>                                                   
+                                            <a href="${rootURL}/job/${request.project}/config.xml">Config file</a>
+                                        </td>
+                                    </tr>
+                                </j:forEach>
+                            </tbody>
+                        </table>
                     </form>
                 </j:otherwise>
             </j:choose>

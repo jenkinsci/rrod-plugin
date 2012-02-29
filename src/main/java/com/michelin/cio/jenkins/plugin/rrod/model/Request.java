@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright (c) 2011, Manufacture Francaise des Pneumatiques Michelin, Daniel Petisme
+ * Copyright (c) 2011-2012, Manufacture Francaise des Pneumatiques Michelin, Daniel Petisme
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,17 +23,28 @@
  */
 package com.michelin.cio.jenkins.plugin.rrod.model;
 
+import com.google.common.base.Preconditions;
+import hudson.model.Hudson;
+import hudson.model.Job;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import org.apache.commons.lang.Validate;
+
 /**
  * @author Daniel Petisme <daniel.petisme@gmail.com> <http://danielpetisme.blogspot.com/>
  */
 public abstract class Request {
 
+    protected static final SimpleDateFormat DATE_FORMATER = new SimpleDateFormat(Messages.Request_dateFormat());
     protected String username;
     protected String project;
+    protected String errorMessage;
+    private String creationDate;
 
     public Request(String username, String project) {
         this.username = username;
         this.project = project;
+        this.creationDate = DATE_FORMATER.format(new Date());
     }
 
     public String getProject() {
@@ -44,9 +55,31 @@ public abstract class Request {
         return username;
     }
 
+    public String getCreationDate() {
+        return creationDate;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
     public abstract String getMessage();
 
-    public abstract boolean process();
+    public boolean process() {
+        boolean success = false;
+
+        Job job = (Job) Hudson.getInstance().getItem(project);
+
+        if (job != null) {
+            success = execute(job);
+        } else {
+            errorMessage = "The job " + project + " doesn't exist";
+        }
+
+        return success;
+    }
+
+    public abstract boolean execute(Job job);
 
     @Override
     public boolean equals(Object obj) {
@@ -64,5 +97,5 @@ public abstract class Request {
             return false;
         }
         return true;
-    }    
+    }
 }

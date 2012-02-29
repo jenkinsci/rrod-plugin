@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright (c) 2011, Manufacture Francaise des Pneumatiques Michelin, Daniel Petisme,
+ * Copyright (c) 2011-2012, Manufacture Francaise des Pneumatiques Michelin, Daniel Petisme,
  * Romain Seguy
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -22,7 +22,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package com.michelin.cio.jenkins.plugin.rrod.action;
 
 import hudson.Functions;
@@ -65,6 +64,7 @@ public class RequestDeleteAction implements Action {
 
             RequestRenameOrDeletePlugin plugin = Hudson.getInstance().getPlugin(RequestRenameOrDeletePlugin.class);
             plugin.addRequest(new DeleteRequest(username, project.getName()));
+            LOGGER.log(Level.INFO, "The request to delete the jobs {0} has been sent to the administrator", project.getName());
         }
 
         return new HttpRedirect(request.getContextPath() + '/' + project.getUrl());
@@ -104,16 +104,14 @@ public class RequestDeleteAction implements Action {
         }
 
         return isDisplayed;
-     }
+    }
 
     private boolean hasConfigurePermission() throws IOException, ServletException {
         return Functions.hasPermission(project, Item.CONFIGURE);
-     }
- 
+    }
+
     private boolean hasDeletePermission() throws IOException, ServletException {
         return Functions.hasPermission(project, Item.DELETE);
     }
-
     private static final Logger LOGGER = Logger.getLogger(RequestDeleteAction.class.getName());
-
 }

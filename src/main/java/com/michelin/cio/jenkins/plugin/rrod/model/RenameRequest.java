@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright (c) 2011, Manufacture Francaise des Pneumatiques Michelin, Daniel Petisme
+ * Copyright (c) 2011-2012, Manufacture Francaise des Pneumatiques Michelin, Daniel Petisme
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -55,24 +55,27 @@ public class RenameRequest extends Request {
     }
 
     @Override
-    public boolean process() {
+    public boolean execute(Job job) {
         boolean success = false;
 
         if (Hudson.getInstance().hasPermission(Item.DELETE) && Hudson.getInstance().hasPermission(Item.CREATE)) {
-            Job job = (Job) Hudson.getInstance().getItem(project);
             try {
                 job.renameTo(newName);
                 success = true;
+                LOGGER.log(Level.INFO, "The jobs {0} has been properly renamed in {1}", new Object[]{job.getName(), newName});
             } catch (IOException e) {
+                errorMessage = e.getMessage();
+                LOGGER.log(Level.SEVERE, "Impossible to rename the job " + job.getName(), e);
+            } catch (IllegalArgumentException e) {
+                errorMessage = e.getMessage();
                 LOGGER.log(Level.SEVERE, "Impossible to rename the job " + job.getName(), e);
             }
         } else {
-            LOGGER.log(Level.FINE, "The current user {0} has no permission to rename the job", new Object[]{username} );
+            errorMessage = "The current user " + username + " has no permission to rename the job";
+            LOGGER.log(Level.FINE, "The current user {0} has no permission to RENAME the job", new Object[]{username});
         }
 
         return success;
     }
-
     private static final Logger LOGGER = Logger.getLogger(RenameRequest.class.getName());
-
 }
