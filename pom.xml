@@ -12,7 +12,7 @@
     <artifactId>rrod</artifactId>
     <packaging>hpi</packaging>
     <name>Request Rename Or Delete Plugin</name>
-    <version>1.2.1-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
     <url>http://wiki.jenkins-ci.org/display/JENKINS/Request+Rename+Or+Delete+Plugin</url>
    
     <scm>
